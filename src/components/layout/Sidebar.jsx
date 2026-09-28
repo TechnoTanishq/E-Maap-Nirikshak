@@ -5,47 +5,56 @@ import {
   History, ShieldCheck, Home, ChevronRight
 } from 'lucide-react';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 
-const NAV_ITEMS = {
+const NAV_KEYS = {
   owner: [
-    { to: '/owner/dashboard',      icon: LayoutDashboard, label: 'Dashboard',         labelHi: 'डैशबोर्ड' },
-    { to: '/owner/instruments',    icon: Scale,           label: 'My Instruments',    labelHi: 'मेरे यंत्र' },
-    { to: '/owner/applications',   icon: FileText,        label: 'Applications',      labelHi: 'आवेदन' },
-    { to: '/owner/certificates',   icon: Award,           label: 'Certificates',      labelHi: 'प्रमाण-पत्र' },
-    { to: '/owner/notifications',  icon: Bell,            label: 'Notifications',     labelHi: 'सूचनाएं' },
+    { to: '/owner/dashboard',     icon: LayoutDashboard, key: 'dashboard' },
+    { to: '/owner/instruments',   icon: Scale,           key: 'myInstruments' },
+    { to: '/owner/applications',  icon: FileText,        key: 'applications' },
+    { to: '/owner/certificates',  icon: Award,           key: 'certificates' },
+    { to: '/owner/notifications', icon: Bell,            key: 'notifications' },
   ],
   lmo: [
-    { to: '/lmo/dashboard',    icon: LayoutDashboard, label: 'Dashboard',          labelHi: 'डैशबोर्ड' },
-    { to: '/lmo/assignments',  icon: ClipboardList,   label: 'My Assignments',     labelHi: 'निरीक्षण कार्य' },
-    { to: '/lmo/history',      icon: History,         label: 'Inspection History', labelHi: 'इतिहास' },
+    { to: '/lmo/dashboard',   icon: LayoutDashboard, key: 'dashboard' },
+    { to: '/lmo/assignments', icon: ClipboardList,   key: 'myAssignments' },
+    { to: '/lmo/history',     icon: History,         key: 'inspectionHistory' },
   ],
   gatc: [
-    { to: '/gatc/dashboard',   icon: LayoutDashboard, label: 'Dashboard',      labelHi: 'डैशबोर्ड' },
-    { to: '/gatc/assignments', icon: ClipboardList,   label: 'Assigned Tests', labelHi: 'परीक्षण कार्य' },
-    { to: '/gatc/history',     icon: History,         label: 'Test History',   labelHi: 'इतिहास' },
+    { to: '/gatc/dashboard',   icon: LayoutDashboard, key: 'dashboard' },
+    { to: '/gatc/assignments', icon: ClipboardList,   key: 'assignedTests' },
+    { to: '/gatc/history',     icon: History,         key: 'testHistory' },
   ],
   admin: [
-    { to: '/admin/dashboard',     icon: LayoutDashboard, label: 'Dashboard',           labelHi: 'डैशबोर्ड' },
-    { to: '/admin/applications',  icon: FileText,        label: 'Applications Queue',  labelHi: 'आवेदन कतार' },
-    { to: '/admin/stakeholders',  icon: Users,           label: 'Stakeholders',        labelHi: 'हितधारक' },
-    { to: '/admin/certificates',  icon: Award,           label: 'Certificate Registry',labelHi: 'रजिस्ट्री' },
-    { to: '/admin/enforcement',   icon: AlertTriangle,   label: 'Enforcement & Risk',  labelHi: 'प्रवर्तन' },
-    { to: '/admin/reports',       icon: BarChart3,       label: 'Reports',             labelHi: 'रिपोर्ट' },
+    { to: '/admin/dashboard',    icon: LayoutDashboard, key: 'dashboard' },
+    { to: '/admin/applications', icon: FileText,        key: 'applicationsQueue' },
+    { to: '/admin/stakeholders', icon: Users,           key: 'stakeholders' },
+    { to: '/admin/certificates', icon: Award,           key: 'certificateRegistry' },
+    { to: '/admin/enforcement',  icon: AlertTriangle,   key: 'enforcement' },
+    { to: '/admin/reports',      icon: BarChart3,       key: 'reports' },
   ],
 };
 
-const ROLE_META = {
-  owner: { label: 'Instrument Owner',             labelHi: 'यंत्र स्वामी',          accentColor: 'bg-blue-500' },
-  lmo:   { label: 'Legal Metrology Officer',       labelHi: 'विधिक माप-विज्ञान अधिकारी', accentColor: 'bg-purple-500' },
-  gatc:  { label: 'Govt. Approved Test Centre',    labelHi: 'सरकारी परीक्षण केंद्र',   accentColor: 'bg-cyan-500' },
-  admin: { label: 'Administrator',                 labelHi: 'प्रशासक',               accentColor: 'bg-amber-500' },
+const ROLE_ACCENT = {
+  owner: 'bg-blue-500',
+  lmo:   'bg-purple-500',
+  gatc:  'bg-cyan-500',
+  admin: 'bg-amber-500',
+};
+
+const ROLE_KEY = {
+  owner: 'roleOwner',
+  lmo:   'roleLMO',
+  gatc:  'roleGATC',
+  admin: 'roleAdmin',
 };
 
 export default function Sidebar({ role }) {
   const navigate = useNavigate();
   const { logout, currentUser } = useAppStore();
-  const navItems = NAV_ITEMS[role] || [];
-  const meta = ROLE_META[role] || {};
+  const t = useT();
+  const navItems = NAV_KEYS[role] || [];
+  const accentColor = ROLE_ACCENT[role] || 'bg-gray-500';
 
   return (
     <aside className="w-60 min-h-screen bg-[#1a3a6e] flex flex-col shrink-0 shadow-xl">
@@ -64,13 +73,13 @@ export default function Sidebar({ role }) {
             <Scale size={18} className="text-[#1a3a6e]" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm leading-tight">E-Maap Nirikshak</p>
-            <p className="text-blue-300 text-[9px] leading-tight">माप निरीक्षक</p>
+            <p className="text-white font-bold text-sm leading-tight">{t('appName')}</p>
+            <p className="text-blue-300 text-[9px] leading-tight">{t('appNameHi')}</p>
           </div>
         </div>
         <p className="text-blue-400 text-[9px] mt-1.5 leading-tight">
-          Legal Metrology Verification Portal<br />
-          Ministry of Consumer Affairs
+          {t('portalLabel')}<br />
+          {t('ministry')}
         </p>
       </div>
 
@@ -84,8 +93,8 @@ export default function Sidebar({ role }) {
             <div className="min-w-0">
               <p className="text-white text-xs font-semibold truncate">{currentUser?.name}</p>
               <div className="flex items-center gap-1 mt-0.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${meta.accentColor} shrink-0`} />
-                <p className="text-blue-300 text-[9px] truncate">{meta.label}</p>
+                <span className={`w-1.5 h-1.5 rounded-full ${accentColor} shrink-0`} />
+                <p className="text-blue-300 text-[9px] truncate">{t(ROLE_KEY[role] || 'roleOwner')}</p>
               </div>
             </div>
           </div>
@@ -94,8 +103,8 @@ export default function Sidebar({ role }) {
 
       {/* ── Navigation ── */}
       <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-        <p className="text-blue-400 text-[9px] uppercase tracking-widest font-semibold px-2 mb-2">Navigation</p>
-        {navItems.map(({ to, icon: Icon, label, labelHi }) => (
+        <p className="text-blue-400 text-[9px] uppercase tracking-widest font-semibold px-2 mb-2">{t('nav')}</p>
+        {navItems.map(({ to, icon: Icon, key }) => (
           <NavLink
             key={to}
             to={to}
@@ -111,8 +120,7 @@ export default function Sidebar({ role }) {
               <>
                 <Icon size={15} className="shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="truncate leading-tight">{label}</p>
-                  <p className={`text-[8px] leading-tight truncate ${isActive ? 'text-[#1a3a6e]/60' : 'text-blue-400'}`}>{labelHi}</p>
+                  <p className="truncate leading-tight">{t(key)}</p>
                 </div>
                 {isActive && <ChevronRight size={12} className="text-[#1a3a6e]/40 shrink-0" />}
               </>
@@ -128,29 +136,29 @@ export default function Sidebar({ role }) {
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium text-blue-200 hover:bg-blue-800 hover:text-white transition-all"
         >
           <Home size={14} />
-          <span>Public Verify Portal</span>
+          <span>{t('publicVerifyPortal')}</span>
         </button>
         <button
           onClick={() => navigate('/')}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium text-blue-200 hover:bg-blue-800 hover:text-white transition-all"
         >
           <ShieldCheck size={14} />
-          <span>Switch Role</span>
+          <span>{t('switchRole')}</span>
         </button>
         <button
           onClick={() => { logout(); navigate('/'); }}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium text-red-300 hover:bg-red-700 hover:text-white transition-all"
         >
           <LogOut size={14} />
-          <span>Sign Out / लॉग आउट</span>
+          <span>{t('signOut')}</span>
         </button>
       </div>
 
       {/* ── Bottom badge ── */}
       <div className="px-3 py-2 border-t border-blue-800">
         <p className="text-[8px] text-blue-500 text-center leading-relaxed">
-          Legal Metrology Act, 2009<br />
-          Govt. of India · SIH 26036
+          {t('legalMetrologyAct')}<br />
+          {t('sihLabel')}
         </p>
       </div>
     </aside>

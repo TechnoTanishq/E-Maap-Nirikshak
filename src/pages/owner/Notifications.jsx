@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Bell, CheckCircle, AlertTriangle, Calendar, Award } from 'lucide-react';
+import { Bell, AlertTriangle, Calendar, Award } from 'lucide-react';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getNotifications, markNotificationRead } from '../../data/api.js';
 
 const ICONS = {
@@ -14,6 +15,7 @@ const COLORS = {
 
 export default function Notifications() {
   const { currentUser } = useAppStore();
+  const t = useT();
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,16 +34,21 @@ export default function Notifications() {
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-sm text-gray-500">{notifs.filter(n => !n.read).length} unread</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('notificationsTitle')}</h1>
+          <p className="text-sm text-gray-500">{notifs.filter(n => !n.read).length} {t('unread')}</p>
         </div>
         {notifs.some(n => !n.read) && (
-          <button onClick={() => notifs.forEach(n => !n.read && markRead(n.id))} className="text-xs text-indigo-600 hover:underline">Mark all read</button>
+          <button onClick={() => notifs.forEach(n => !n.read && markRead(n.id))} className="text-xs text-indigo-600 hover:underline">
+            {t('markAllRead')}
+          </button>
         )}
       </div>
 
       {notifs.length === 0 ? (
-        <div className="text-center py-16 text-gray-400"><Bell size={32} className="mx-auto mb-2 opacity-40" /><p>No notifications</p></div>
+        <div className="text-center py-16 text-gray-400">
+          <Bell size={32} className="mx-auto mb-2 opacity-40" />
+          <p>{t('noNotifications')}</p>
+        </div>
       ) : (
         <div className="space-y-2">
           {notifs.map(n => {

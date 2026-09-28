@@ -5,6 +5,7 @@ import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getApplications } from '../../data/api.js';
 
 const STATUS_ORDER = ['Submitted','Under Review','Scheduled','Inspected','Certified','Rejected'];
@@ -12,6 +13,7 @@ const STATUS_ORDER = ['Submitted','Under Review','Scheduled','Inspected','Certif
 export default function Applications() {
   const { currentUser } = useAppStore();
   const navigate = useNavigate();
+  const t = useT();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,24 +24,24 @@ export default function Applications() {
     });
   }, [currentUser.id]);
 
-  if (loading) return <LoadingSpinner text="Loading applications..." />;
+  if (loading) return <LoadingSpinner text={t('loadingApplications')} />;
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
-          <p className="text-sm text-gray-500">Track your verification and re-verification applications</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('applicationsTitle')}</h1>
+          <p className="text-sm text-gray-500">{t('applicationsSubtitle')}</p>
         </div>
         <button
           onClick={() => navigate('/owner/applications/apply')}
           className="flex items-center gap-2 bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800"
         >
-          <Plus size={16} /> Apply for Verification
+          <Plus size={16} /> {t('applyForVerification')}
         </button>
       </div>
 
-      {/* Status pipeline visual */}
+      {/* Status pipeline */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
         <div className="flex items-center justify-between gap-1 overflow-x-auto">
           {STATUS_ORDER.map((s, i) => {
@@ -58,15 +60,15 @@ export default function Applications() {
       </div>
 
       {apps.length === 0 ? (
-        <EmptyState title="No applications yet" description="Submit a verification application for your registered instruments." action={
-          <button onClick={() => navigate('/owner/applications/apply')} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">Apply Now</button>
+        <EmptyState title={t('noApplicationsTitle')} description={t('noApplicationsDesc')} action={
+          <button onClick={() => navigate('/owner/applications/apply')} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">{t('applyNow')}</button>
         } />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Application ID','Instrument ID','Type','Submitted','Scheduled','Status'].map(h => (
+                {[t('applicationId'), t('instrumentId'), t('type'), t('submitted'), t('scheduled'), t('status')].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>

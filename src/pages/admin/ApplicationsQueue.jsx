@@ -3,10 +3,12 @@ import { CheckCircle, X } from 'lucide-react';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getApplications, getLMOs, getGATCs, getInstruments, getOwners, allocateApplication } from '../../data/api.js';
 
 export default function ApplicationsQueue() {
   const { addToast } = useAppStore();
+  const t = useT();
   const [apps, setApps] = useState([]);
   const [lmos, setLmos] = useState([]);
   const [gatcs, setGatcs] = useState([]);
@@ -34,32 +36,35 @@ export default function ApplicationsQueue() {
     await load();
     setAllocModal(null);
     setAllocating(false);
-    addToast('Inspection allocated and scheduled successfully!', 'success');
+    addToast(t('allocationSuccess'), 'success');
   };
 
-  // Auto-suggest officer based on jurisdiction
   const suggestOfficer = (instr) => {
     const owner = owners.find(o => o.id === instr?.ownerId);
     const matchLMO = lmos.find(l => l.jurisdiction === owner?.state);
     return matchLMO?.id;
   };
 
-  if (loading) return <LoadingSpinner text="Loading applications..." />;
+  if (loading) return <LoadingSpinner text={t('loadingApplications')} />;
+
+  const FILTER_TABS = [t('all'), t('submitted'), t('underReview'), t('scheduled'), t('certified'), t('rejected')];
+  const FILTER_VALUES = ['All', 'Submitted', 'Under Review', 'Scheduled', 'Certified', 'Rejected'];
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Applications Queue</h1>
-        <p className="text-sm text-gray-500">Manage and allocate verification applications</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('appQueueTitle')}</h1>
+        <p className="text-sm text-gray-500">{t('appQueueSubtitle')}</p>
       </div>
 
       {/* Filter tabs */}
       <div className="flex gap-2 flex-wrap">
-        {['All','Submitted','Under Review','Scheduled','Certified','Rejected'].map(s => {
-          const count = s === 'All' ? apps.length : apps.filter(a => a.status === s).length;
+        {FILTER_TABS.map((label, idx) => {
+          const val = FILTER_VALUES[idx];
+          const count = val === 'All' ? apps.length : apps.filter(a => a.status === val).length;
           return (
-            <button key={s} className="text-xs border border-gray-200 rounded-full px-3 py-1 text-gray-600 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors">
-              {s} ({count})
+            <button key={val} className="text-xs border border-gray-200 rounded-full px-3 py-1 text-gray-600 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors">
+              {label} ({count})
             </button>
           );
         })}
@@ -69,7 +74,7 @@ export default function ApplicationsQueue() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['Application ID','Instrument','Owner','Type','Submitted','Assigned To','Status','Action'].map(h => (
+              {[t('applicationId'), t('instrument'), t('ownerCol'), t('type'), t('submitted'), t('assignedTo'), t('status'), t('action')].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
@@ -91,7 +96,7 @@ export default function ApplicationsQueue() {
                   <td className="px-4 py-3 text-gray-700 text-xs">{owner?.name}</td>
                   <td className="px-4 py-3"><StatusBadge status={app.type} /></td>
                   <td className="px-4 py-3 text-gray-500 text-xs">{app.submittedDate}</td>
-                  <td className="px-4 py-3 text-xs">{officer?.name || <span className="text-gray-400 italic">Unassigned</span>}</td>
+                  <td className="px-4 py-3 text-xs">{officer?.name || <span className="text-gray-400 italic">{t('unassigned')}</span>}</td>
                   <td className="px-4 py-3"><StatusBadge status={app.status} /></td>
                   <td className="px-4 py-3">
                     {['Submitted','Under Review'].includes(app.status) && (
@@ -103,7 +108,7 @@ export default function ApplicationsQueue() {
                           setSchedDate(new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0]);
                         }}
                         className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700"
-                      >Allocate</button>
+                      >{t('allocate')}</button>
                     )}
                   </td>
                 </tr>
@@ -118,39 +123,39 @@ export default function ApplicationsQueue() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-gray-900">Allocate Inspection</h3>
+              <h3 className="font-bold text-gray-900">{t('allocateInspection')}</h3>
               <button onClick={() => setAllocModal(null)} className="p-1.5 hover:bg-gray-100 rounded-lg"><X size={16} /></button>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 mb-4 text-xs">
-              <p className="text-gray-500">Application: <span className="font-mono text-indigo-700 font-medium">{allocModal.applicationId}</span></p>
-              <p className="text-gray-500 mt-0.5">Instrument: <span className="font-medium text-gray-800">{allocModal.instrumentId}</span></p>
+              <p className="text-gray-500">{t('application')}: <span className="font-mono text-indigo-700 font-medium">{allocModal.applicationId}</span></p>
+              <p className="text-gray-500 mt-0.5">{t('instrument')}: <span className="font-medium text-gray-800">{allocModal.instrumentId}</span></p>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-gray-600 block mb-2">Assign To</label>
+                <label className="text-xs font-medium text-gray-600 block mb-2">{t('assignTo')}</label>
                 <div className="flex gap-2 mb-2">
-                  {['lmo', 'gatc'].map(t => (
-                    <button key={t} onClick={() => { setAllocType(t); setAllocOfficer(''); }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${allocType === t ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-200 text-gray-600'}`}
-                    >{t.toUpperCase()}</button>
+                  {['lmo', 'gatc'].map(type_ => (
+                    <button key={type_} onClick={() => { setAllocType(type_); setAllocOfficer(''); }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${allocType === type_ ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-200 text-gray-600'}`}
+                    >{type_.toUpperCase()}</button>
                   ))}
                 </div>
                 <select value={allocOfficer} onChange={e => setAllocOfficer(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-400 bg-white"
                 >
-                  <option value="">— Select {allocType.toUpperCase()} —</option>
+                  <option value="">— {t('assignTo')} {allocType.toUpperCase()} —</option>
                   {(allocType === 'lmo' ? lmos : gatcs).map(o => (
                     <option key={o.id} value={o.id}>{o.name} ({o.jurisdiction || o.district})</option>
                   ))}
                 </select>
                 {allocOfficer && (
                   <div className="mt-1 flex items-center gap-1 text-xs text-green-600">
-                    <CheckCircle size={10} /> Auto-suggested based on jurisdiction
+                    <CheckCircle size={10} /> {t('autoSuggested')}
                   </div>
                 )}
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 block mb-1">Schedule Date *</label>
+                <label className="text-xs font-medium text-gray-600 block mb-1">{t('scheduleDate')} *</label>
                 <input type="date" value={schedDate} onChange={e => setSchedDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-400"
@@ -158,10 +163,10 @@ export default function ApplicationsQueue() {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setAllocModal(null)} className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+              <button onClick={() => setAllocModal(null)} className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm hover:bg-gray-50">{t('cancel')}</button>
               <button onClick={handleAllocate} disabled={!allocOfficer || !schedDate || allocating}
                 className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 disabled:opacity-40">
-                {allocating ? 'Allocating...' : 'Confirm Allocation'}
+                {allocating ? t('allocating') : t('confirmAllocation')}
               </button>
             </div>
           </div>

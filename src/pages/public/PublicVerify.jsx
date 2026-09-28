@@ -6,6 +6,7 @@ import {
   ArrowLeft, RefreshCw, Shield, Phone, ChevronRight, ArrowRight
 } from 'lucide-react';
 import { verifyCertificate } from '../../data/api.js';
+import useT from '../../i18n/useT.js';
 
 const DEMO_IDS = [
   { id: 'CERT-DL-2024-00101', label: '✅ Valid', status: 'Valid' },
@@ -31,6 +32,7 @@ const STATUS_CONFIG = {
 export default function PublicVerify() {
   const { certificateId: paramId } = useParams();
   const navigate = useNavigate();
+  const t = useT();
   const [certId, setCertId]   = useState(paramId || '');
   const [result, setResult]   = useState(null);
   const [loading, setLoading] = useState(false);
@@ -110,10 +112,10 @@ export default function PublicVerify() {
             <span>Home</span><ChevronRight size={10} /><span>Public Services</span><ChevronRight size={10} /><span className="text-white">Certificate Verification</span>
           </div>
           <h1 className="text-white text-xl font-bold">
-            Certificate Verification &nbsp;<span className="text-[#FF9933]">|</span>&nbsp; प्रमाण-पत्र सत्यापन
+            {t('publicVerifyTitle')} &nbsp;<span className="text-[#FF9933]">|</span>&nbsp; प्रमाण-पत्र सत्यापन
           </h1>
           <p className="text-blue-200 text-xs mt-0.5">
-            Verify the authenticity and validity of Legal Metrology Verification Certificates
+            {t('publicVerifySubtitle')}
           </p>
         </div>
       </div>
@@ -149,7 +151,7 @@ export default function PublicVerify() {
                 >
                   {loading
                     ? <RefreshCw size={15} className="animate-spin" />
-                    : <><Search size={15} /> Verify</>
+                    : <><Search size={15} /> {t('verifyBtn')}</>
                   }
                 </button>
               </div>

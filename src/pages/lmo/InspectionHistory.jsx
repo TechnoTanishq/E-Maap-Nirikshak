@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import EmptyState from '../../components/shared/EmptyState.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getInspections, getInstruments } from '../../data/api.js';
 
 export default function InspectionHistory() {
   const { currentUser } = useAppStore();
+  const t = useT();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,23 +28,23 @@ export default function InspectionHistory() {
     load();
   }, [currentUser.id]);
 
-  if (loading) return <LoadingSpinner text="Loading history..." />;
+  if (loading) return <LoadingSpinner text={t('loadingHistory')} />;
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Inspection History</h1>
-        <p className="text-sm text-gray-500">{items.length} completed inspection{items.length !== 1 ? 's' : ''}</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('inspectionHistoryTitle')}</h1>
+        <p className="text-sm text-gray-500">{items.length} {t('completedInspection')}</p>
       </div>
 
       {items.length === 0 ? (
-        <EmptyState title="No completed inspections yet" />
+        <EmptyState title={t('noInspectionsTitle')} />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Inspection ID','Instrument','Type','Date','GPS Delta','Result'].map(h => (
+                {[t('inspectionId'), t('instrument'), t('type'), t('date'), t('gpsDelta'), t('result')].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>

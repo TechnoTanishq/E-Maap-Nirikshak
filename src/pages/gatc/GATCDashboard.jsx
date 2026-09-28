@@ -1,4 +1,3 @@
-// GATC Dashboard — same structure as LMO
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -7,6 +6,7 @@ import StatCard from '../../components/shared/StatCard.jsx';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getApplications, getInspections } from '../../data/api.js';
 
 const WEEKLY_DATA = [
@@ -17,6 +17,7 @@ const WEEKLY_DATA = [
 export default function GATCDashboard() {
   const { currentUser } = useAppStore();
   const navigate = useNavigate();
+  const t = useT();
   const [apps, setApps] = useState([]);
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,33 +29,33 @@ export default function GATCDashboard() {
     ]).then(([a, i]) => { setApps(a); setInspections(i); setLoading(false); });
   }, [currentUser.id]);
 
-  if (loading) return <LoadingSpinner text="Loading dashboard..." />;
+  if (loading) return <LoadingSpinner text={t('loadingDashboard')} />;
 
   const scheduled = apps.filter(a => a.status === 'Scheduled');
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">GATC Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('gatcDashboard')}</h1>
         <p className="text-sm text-gray-500">{currentUser.name} · {currentUser.accreditation}</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={ClipboardList} label="Allocated Tests" value={apps.length} color="indigo" />
-        <StatCard icon={Clock} label="Scheduled" value={scheduled.length} color="blue" />
-        <StatCard icon={CheckCircle} label="Completed" value={inspections.length} color="green" />
-        <StatCard icon={TestTube} label="Pending Results" value={apps.filter(a => a.status === 'Inspected').length} color="amber" />
+        <StatCard icon={ClipboardList} label={t('allocatedTests')}  value={apps.length}                                    color="indigo" />
+        <StatCard icon={Clock}         label={t('scheduledLabel2')} value={scheduled.length}                               color="blue" />
+        <StatCard icon={CheckCircle}   label={t('completed')}       value={inspections.length}                             color="green" />
+        <StatCard icon={TestTube}      label={t('pendingResults')}  value={apps.filter(a => a.status === 'Inspected').length} color="amber" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Scheduled Tests</h2>
-            <button onClick={() => navigate('/gatc/assignments')} className="text-xs text-indigo-600 hover:underline">View all</button>
+            <h2 className="font-semibold text-gray-900">{t('scheduledTests')}</h2>
+            <button onClick={() => navigate('/gatc/assignments')} className="text-xs text-indigo-600 hover:underline">{t('viewAll')}</button>
           </div>
           <div className="divide-y divide-gray-50">
             {scheduled.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">No tests scheduled</p>
+              <p className="text-sm text-gray-400 text-center py-8">{t('noTestsScheduled')}</p>
             ) : scheduled.map(app => (
               <div key={app.applicationId} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50">
                 <div>
@@ -65,7 +66,7 @@ export default function GATCDashboard() {
                   <StatusBadge status={app.status} />
                   <button onClick={() => navigate(`/gatc/inspect/${app.applicationId}`)}
                     className="text-xs bg-teal-600 text-white px-2.5 py-1 rounded-lg hover:bg-teal-700">
-                    Start Test
+                    {t('startTest')}
                   </button>
                 </div>
               </div>
@@ -74,7 +75,7 @@ export default function GATCDashboard() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Tests This Week</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">{t('testsThisWeek')}</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={WEEKLY_DATA} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />

@@ -5,11 +5,13 @@ import StatCard from '../../components/shared/StatCard.jsx';
 import StatusBadge from '../../components/shared/StatusBadge.jsx';
 import LoadingSpinner from '../../components/shared/LoadingSpinner.jsx';
 import useAppStore from '../../store/useAppStore.js';
+import useT from '../../i18n/useT.js';
 import { getOwnerStats, getApplications, getCertificates, getInstruments } from '../../data/api.js';
 
 export default function OwnerDashboard() {
   const { currentUser } = useAppStore();
   const navigate = useNavigate();
+  const t = useT();
   const [stats, setStats] = useState(null);
   const [recentApps, setRecentApps] = useState([]);
   const [expiring, setExpiring] = useState([]);
@@ -31,41 +33,43 @@ export default function OwnerDashboard() {
     load();
   }, [currentUser.id]);
 
-  if (loading) return <LoadingSpinner text="Loading dashboard..." />;
+  if (loading) return <LoadingSpinner text={t('loadingDashboard')} />;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome, {currentUser.name}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Legal Metrology Instrument Management Portal</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('welcomeBack')} {currentUser.name}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{t('lmPortalSubtitle')}</p>
         </div>
         <button
           onClick={() => navigate('/owner/instruments/register')}
           className="flex items-center gap-2 bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors"
         >
-          <Plus size={16} /> Register Instrument
+          <Plus size={16} /> {t('registerInstrument')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Scale} label="Total Instruments" value={stats.totalInstruments} color="indigo" />
-        <StatCard icon={Award} label="Active Certificates" value={stats.activeCertificates} color="green" />
-        <StatCard icon={FileText} label="Pending Applications" value={stats.pendingApplications} color="amber" />
-        <StatCard icon={AlertTriangle} label="Expiring Soon" value={stats.expiringSoon} color="orange" />
+        <StatCard icon={Scale}         label={t('totalInstruments')}    value={stats.totalInstruments}    color="indigo" />
+        <StatCard icon={Award}         label={t('activeCertificates')}  value={stats.activeCertificates}  color="green" />
+        <StatCard icon={FileText}      label={t('pendingApplications')} value={stats.pendingApplications} color="amber" />
+        <StatCard icon={AlertTriangle} label={t('expiringSoon')}        value={stats.expiringSoon}        color="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Applications */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Recent Applications</h2>
-            <button onClick={() => navigate('/owner/applications')} className="text-xs text-indigo-600 hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></button>
+            <h2 className="font-semibold text-gray-900">{t('recentApplications')}</h2>
+            <button onClick={() => navigate('/owner/applications')} className="text-xs text-indigo-600 hover:underline flex items-center gap-1">
+              {t('viewAll')} <ArrowRight size={12} />
+            </button>
           </div>
           <div className="divide-y divide-gray-50">
             {recentApps.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">No applications yet</p>
+              <p className="text-sm text-gray-400 text-center py-8">{t('noApplicationsYet')}</p>
             ) : recentApps.map(app => (
               <div key={app.applicationId} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50">
                 <div>
@@ -81,12 +85,19 @@ export default function OwnerDashboard() {
         {/* Expiry Alerts */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Expiry Alerts</h2>
-            <button onClick={() => navigate('/owner/certificates')} className="text-xs text-indigo-600 hover:underline flex items-center gap-1">View certs <ArrowRight size={12} /></button>
+            <h2 className="font-semibold text-gray-900">{t('expiryAlerts')}</h2>
+            <button onClick={() => navigate('/owner/certificates')} className="text-xs text-indigo-600 hover:underline flex items-center gap-1">
+              {t('viewCerts')} <ArrowRight size={12} />
+            </button>
           </div>
           <div className="divide-y divide-gray-50">
             {expiring.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">All certificates are valid</p>
+              <div className="px-5 py-4">
+                <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                  <Award size={16} className="text-green-600" />
+                  <p className="text-sm text-green-700 font-medium">{t('allInstrumentsValid')}</p>
+                </div>
+              </div>
             ) : expiring.map(instr => (
               <div key={instr.instrumentId} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50">
                 <div className="flex items-center gap-3">
@@ -98,31 +109,23 @@ export default function OwnerDashboard() {
                 </div>
                 <div className="text-right">
                   <StatusBadge status={instr.status} />
-                  {instr.validUntil && <p className="text-xs text-gray-400 mt-1">Until {instr.validUntil}</p>}
+                  {instr.validUntil && <p className="text-xs text-gray-400 mt-1">{t('until')} {instr.validUntil}</p>}
                 </div>
               </div>
             ))}
-            {expiring.length === 0 && (
-              <div className="px-5 py-3">
-                <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-                  <Award size={16} className="text-green-600" />
-                  <p className="text-sm text-green-700 font-medium">All instruments are within validity period</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className="bg-gradient-to-r from-[#1E3A8A] to-[#6D28D9] rounded-xl p-6 text-white">
-        <h2 className="font-semibold text-lg mb-3">Quick Actions</h2>
+        <h2 className="font-semibold text-lg mb-3">{t('quickActions')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Register Instrument', route: '/owner/instruments/register', icon: Plus },
-            { label: 'Apply for Verification', route: '/owner/applications/apply', icon: FileText },
-            { label: 'View Certificates', route: '/owner/certificates', icon: Award },
-            { label: 'My Instruments', route: '/owner/instruments', icon: Scale },
+            { labelKey: 'registerInstrumentAction', route: '/owner/instruments/register', icon: Plus },
+            { labelKey: 'applyVerification',        route: '/owner/applications/apply',   icon: FileText },
+            { labelKey: 'viewCertificates',         route: '/owner/certificates',         icon: Award },
+            { labelKey: 'myInstruments',            route: '/owner/instruments',          icon: Scale },
           ].map(a => (
             <button
               key={a.route}
@@ -130,7 +133,7 @@ export default function OwnerDashboard() {
               className="flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg py-4 px-3 transition-all"
             >
               <a.icon size={20} />
-              <span className="text-xs font-medium text-center">{a.label}</span>
+              <span className="text-xs font-medium text-center">{t(a.labelKey)}</span>
             </button>
           ))}
         </div>
